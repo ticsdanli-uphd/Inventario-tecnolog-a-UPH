@@ -879,6 +879,164 @@ function handleLogout() {
   if (elements.appScreen) elements.appScreen.classList.add('hidden');
 }
 
+// Funciones de Exportar e Importar
+function exportToCSV(data, filename, section = 'inventario') {
+  if (!data || data.length === 0) {
+    alert('No hay datos para exportar');
+    return;
+  }
+
+  // Determinar columnas según la sección
+  let columns;
+  if (section === 'computers') {
+    columns = ['No', 'Ubicación', 'Descripción', 'Marca', 'Modelo', 'RAM', 'Gráfica', 'Serial', 'S.O', 'Disco', 'Estado', 'Última modificación'];
+  } else {
+    columns = ['No', 'Ubicación', 'Descripción', 'Clasificación', 'Código', 'Estado', 'Marca', 'Modelo', 'RAM', 'Gráfica', 'Serial', 'S.O', 'Disco', 'Última modificación', 'Fecha recibida'];
+  }
+
+  const headers = columns.join(',');
+  const rows = data.map(item => {
+    if (section === 'computers') {
+      return [
+        item.no, item.ubicacion, item.descripcion, item.marca, item.modelo,
+        item.ram, item.tarjetaGrafica, item.serial, item.sistemaOperativo, 
+        item.disco, item.estado, item.ultimaModificacion
+      ].map(v => `"${(v || '-').toString().replace(/"/g, '""')}"`).join(',');
+    } else {
+      return [
+        item.no, item.ubicacion, item.descripcion, item.clasificacion, item.codigo,
+        item.estado, item.marca, item.modelo, item.ram, item.tarjetaGrafica,
+        item.serial, item.sistemaOperativo, item.disco, item.ultimaModificacion, 
+        item.fechaRecibida
+      ].map(v => `"${(v || '-').toString().replace(/"/g, '""')}"`).join(',');
+    }
+  }).join('\n');
+
+  const csv = headers + '\n' + rows;
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+}
+
+function downloadTemplate(section = 'inventario') {
+  const filename = section === 'computers' ? 'plantilla-computadoras.csv' : 'plantilla-inventario.csv';
+  
+  if (section === 'computers') {
+    const headers = 'No,Ubicación,Descripción,Marca,Modelo,RAM,Gráfica,Serial,S.O,Disco,Estado,Última modificación';
+    const template = headers + '\n1,Ejemplo,Computadora de ejemplo,Dell,Latitude 5430,16 GB,Intel Iris Xe,XXX-123-456,Windows 11,512 GB SSD,Activo,2026-08-18';
+    const blob = new Blob([template], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+  } else {
+    const headers = 'No,Ubicación,Descripción,Clasificación,Código,Estado,Marca,Modelo,RAM,Gráfica,Serial,S.O,Disco,Última modificación,Fecha recibida';
+    const template = headers + '\n1,Lab,Equipo,Equipo de cómputo,UPH-001,Activo,Dell,Latitude,16 GB,Intel,XXX-123,Windows 11,512 GB,2026-08-18,2024-03-18';
+    const blob = new Blob([template], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+  }
+}
+
+function importFromCSV(file, section = 'inventario') {
+  const reader = new FileReader();
+  
+  reader.onload = (e) => {
+    try {
+      const csv = e.target.result;
+      const lines = csv.trim().split('\n');
+      
+      if (lines.length < 2) {
+        alert('El archivo está vacío');
+        return;
+      }
+
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+      const newItems = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+        
+        if (values.every(v => !v)) continue; // Saltar líneas vacías
+
+        if (section === 'computers') {
+          const item = {
+            id: state.inventory.length + i,
+            no: values[0] || '',
+            ubicacion: values[1] || '',
+            descripcion: values[2] || '',
+            clasificacion: 'Equipo de cómputo',
+            codigo: `IMP-${Date.now()}-${i}`,
+            estado: values[10] || 'Activo',
+            marca: values[3] || '',
+            modelo: values[4] || '',
+            ram: values[5] || '',
+            tarjetaGrafica: values[6] || '',
+            serial: values[7] || '',
+            sistemaOperativo: values[8] || '',
+            disco: values[9] || '',
+            foto: '',
+            ultimaModificacion: values[11] || new Date().toISOString().split('T')[0],
+            fechaRecibida: new Date().toISOString().split('T')[0],
+            actaEntrega: ''
+          };
+          newItems.push(item);
+        } else {
+          const item = {
+            id: state.inventory.length + i,
+            no: values[0] || '',
+            ubicacion: values[1] || '',
+            descripcion: values[2] || '',
+            clasificacion: values[3] || '',
+            codigo: values[4] || `IMP-${Date.now()}-${i}`,
+            estado: values[5] || 'Activo',
+            marca: values[6] || '',
+            modelo: values[7] || '',
+            ram: values[8] || '',
+            tarjetaGrafica: values[9] || '',
+            serial: values[10] || '',
+            sistemaOperativo: values[11] || '',
+            disco: values[12] || '',
+            foto: '',
+            ultimaModificacion: values[13] || new Date().toISOString().split('T')[0],
+            fechaRecibida: values[14] || new Date().toISOString().split('T')[0],
+            actaEntrega: ''
+          };
+          newItems.push(item);
+        }
+      }
+
+      if (newItems.length === 0) {
+        alert('No se encontraron datos válidos en el archivo');
+        return;
+      }
+
+      state.inventory.push(...newItems);
+      saveData(STORAGE_KEYS.inventory, state.inventory);
+      
+      alert(`✅ Importados ${newItems.length} registros exitosamente`);
+      renderAll();
+      
+      if (section === 'computers') {
+        renderComputersStats();
+        renderComputers();
+      } else {
+        renderStats();
+        renderInventory();
+      }
+    } catch (error) {
+      alert('Error al importar archivo: ' + error.message);
+      console.error(error);
+    }
+  };
+
+  reader.readAsText(file);
+}
+
 function bindEvents() {
   if (elements.loginForm) {
     elements.loginForm.addEventListener('submit', handleLogin);
@@ -902,6 +1060,66 @@ function bindEvents() {
     if (document.getElementById('closeUserModal')) document.getElementById('closeUserModal').addEventListener('click', closeUserModal);
     if (document.getElementById('cancelUserBtn')) document.getElementById('cancelUserBtn').addEventListener('click', closeUserModal);
     if (elements.userForm) elements.userForm.addEventListener('submit', handleUserSubmit);
+
+    // Event listeners para exportar e importar
+    if (document.getElementById('exportInventoryBtn')) {
+      document.getElementById('exportInventoryBtn').addEventListener('click', () => {
+        const filteredData = state.inventory.filter(item => {
+          const searchText = (elements.inventorySearch?.value || '').trim().toLowerCase();
+          const status = elements.statusFilter?.value || 'todos';
+          return (!searchText || item.description?.toLowerCase().includes(searchText)) && 
+                 (status === 'todos' || item.estado === status);
+        });
+        exportToCSV(filteredData, 'inventario.csv', 'inventario');
+      });
+    }
+
+    if (document.getElementById('downloadTemplateBtn')) {
+      document.getElementById('downloadTemplateBtn').addEventListener('click', () => downloadTemplate('inventario'));
+    }
+
+    if (document.getElementById('importInventoryBtn')) {
+      document.getElementById('importInventoryBtn').addEventListener('click', () => {
+        document.getElementById('importFile').click();
+      });
+    }
+
+    if (document.getElementById('importFile')) {
+      document.getElementById('importFile').addEventListener('change', (e) => {
+        if (e.target.files[0]) {
+          importFromCSV(e.target.files[0], 'inventario');
+          e.target.value = '';
+        }
+      });
+    }
+
+    if (document.getElementById('exportComputersBtn')) {
+      document.getElementById('exportComputersBtn').addEventListener('click', () => {
+        const computers = state.inventory.filter(item => 
+          item.clasificacion && (item.clasificacion.includes('Equipo de cómputo') || item.clasificacion.includes('Servidor de trabajo'))
+        );
+        exportToCSV(computers, 'computadoras.csv', 'computers');
+      });
+    }
+
+    if (document.getElementById('downloadComputersTemplateBtn')) {
+      document.getElementById('downloadComputersTemplateBtn').addEventListener('click', () => downloadTemplate('computers'));
+    }
+
+    if (document.getElementById('importComputersBtn')) {
+      document.getElementById('importComputersBtn').addEventListener('click', () => {
+        document.getElementById('importComputersFile').click();
+      });
+    }
+
+    if (document.getElementById('importComputersFile')) {
+      document.getElementById('importComputersFile').addEventListener('change', (e) => {
+        if (e.target.files[0]) {
+          importFromCSV(e.target.files[0], 'computers');
+          e.target.value = '';
+        }
+      });
+    }
 
     elements.navButtons.forEach((button) => {
       button.addEventListener('click', () => toggleSection(button.dataset.section));

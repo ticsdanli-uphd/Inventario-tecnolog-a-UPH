@@ -970,50 +970,255 @@ select:invalid {
 
   .sidebar {
     width: 100%;
+    padding: 1rem 0.5rem;
+    gap: 1rem;
+  }
+
+  .nav {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.4rem;
+  }
+
+  .nav-btn {
+    padding: 0.6rem 0.7rem;
+    font-size: 0.85rem;
   }
 
   .content {
-    padding-top: 1rem;
+    padding: 1rem 1rem 1rem;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+
+  .topbar h1 {
+    font-size: 1.3rem;
+  }
+
+  .primary-btn {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    font-size: 0.95rem;
   }
 }
 
-@media (max-width: 700px) {
-  .topbar {
-    align-items: flex-start;
-    flex-direction: column;
-    padding: 1rem;
+@media (max-width: 640px) {
+  .sidebar {
+    padding: 0.8rem 0.5rem;
   }
 
-  .primary-btn,
-  .secondary-btn,
-  .ghost-btn,
-  .logout-btn {
-    width: 100%;
+  .nav-btn {
+    padding: 0.5rem 0.5rem;
+    font-size: 0.75rem;
+    text-align: center;
+  }
+
+  .topbar {
+    padding: 0.75rem;
+    border-radius: 12px;
+  }
+
+  .topbar h1 {
+    font-size: 1.1rem;
   }
 
   .toolbar {
-    padding: 0.9rem;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.75rem;
   }
 
-  .search-box,
-  .filter-box,
-  .form-grid {
-    width: 100%;
+  .search-box {
     flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .filter-box {
+    width: 100%;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .stat-card {
+    padding: 0.75rem;
+  }
+
+  .stat-card .label {
+    font-size: 0.7rem;
+  }
+
+  .stat-card .value {
+    font-size: 1.4rem;
+  }
+
+  table {
+    font-size: 0.8rem;
+  }
+
+  thead th {
+    padding: 0.5rem 0.3rem;
+    font-size: 0.7rem;
+    max-width: 70px;
+  }
+
+  tbody td {
+    padding: 0.5rem 0.3rem;
+    font-size: 0.75rem;
+  }
+
+  .action-group {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .action-btn {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.7rem;
+    width: 100%;
+  }
+
+  .form-grid {
     grid-template-columns: 1fr;
   }
 
-  .form-actions {
-    flex-direction: column;
+  .secondary-btn,
+  .ghost-btn {
+    width: 100%;
   }
 
-  .table-wrap {
-    overflow-x: auto;
+  .areas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-card {
+    width: 95%;
+    padding: 1rem;
+    border-radius: 16px;
+  }
+
+  .small-card {
+    width: 95%;
   }
 }
 
-/* Mejoras de accesibilidad y UX */
-:focus-visible {
+@media (max-width: 480px) {
+  html, body {
+    font-size: 14px;
+  }
+
+  .sidebar {
+    padding: 0.6rem 0.4rem;
+  }
+
+  .nav {
+    grid-template-columns: 1fr;
+  }
+
+  .nav-btn {
+    font-size: 0.7rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .stat-card {
+    padding: 0.6rem;
+  }
+
+  .toolbar {
+    padding: 0.6rem;
+  }
+
+  table {
+    font-size: 0.7rem;
+  }
+
+  thead th,
+  tbody td {
+    padding: 0.4rem 0.2rem;
+  }
+
+  .badge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.65rem;
+  }
+}
+
+/* Nuevos estilos para export/import */
+.toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.export-btn, .import-btn {
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.export-btn {
+  background: rgba(34, 197, 94, 0.12);
+  color: #0f8f4a;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.export-btn:hover {
+  background: rgba(34, 197, 94, 0.22);
+  transform: translateY(-1px);
+}
+
+.import-btn {
+  background: rgba(91, 92, 230, 0.12);
+  color: #3b40d8;
+  border: 1px solid rgba(91, 92, 230, 0.3);
+}
+
+.import-btn:hover {
+  background: rgba(91, 92, 230, 0.22);
+  transform: translateY(-1px);
+}
+
+#importFile {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .export-btn, .import-btn {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .toolbar-actions {
+    gap: 0.3rem;
+  }
+
+  .export-btn, .import-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.65rem;
+  }
+}
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
