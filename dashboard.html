@@ -22,10 +22,11 @@
         </div>
 
         <nav class="nav">
-          <button class="nav-btn active" data-section="inventory">Inventario</button>
-          <button class="nav-btn" data-section="areas">Áreas</button>
-          <button class="nav-btn" data-section="users">Usuarios</button>
-          <button class="nav-btn" data-section="reports">Reportes</button>
+          <button class="nav-btn active" data-section="inventory" title="Ver inventario de activos">📦 Inventario</button>
+          <button class="nav-btn" data-section="computers" title="Ver solo computadoras y workstations">💻 Computadoras</button>
+          <button class="nav-btn" data-section="areas" title="Gestionar áreas y ubicaciones">📍 Áreas</button>
+          <button class="nav-btn" data-section="users" title="Administrar usuarios del sistema">👥 Usuarios</button>
+          <button class="nav-btn" data-section="reports" title="Ver reportes y estadísticas">📊 Reportes</button>
         </nav>
 
         <div class="user-card">
@@ -43,7 +44,7 @@
             <p class="eyebrow dark">Panel de control</p>
             <h1>Gestión tecnológica UPH</h1>
           </div>
-          <button id="newAssetBtn" class="primary-btn">Nuevo activo</button>
+          <button id="newAssetBtn" class="primary-btn" title="Agregar un nuevo activo al inventario">+ Nuevo activo</button>
         </header>
 
         <section id="inventorySection" class="section-panel active-section">
@@ -52,7 +53,7 @@
           <div class="toolbar">
             <div class="search-box">
               <span>🔎</span>
-              <input id="inventorySearch" type="search" placeholder="Buscar activo, código, serial, área..." />
+              <input id="inventorySearch" type="search" placeholder="Buscar activo, código, serial, área..." title="Escribe para filtrar los activos del inventario" />
             </div>
 
             <div class="filter-box">
@@ -94,6 +95,55 @@
                   </tr>
                 </thead>
                 <tbody id="inventoryTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="computersSection" class="section-panel hidden-section">
+          <div class="stats-grid" id="computersStatsGrid"></div>
+
+          <div class="toolbar">
+            <div class="search-box">
+              <span>🔎</span>
+              <input id="computersSearch" type="search" placeholder="Buscar computadora, marca, modelo, serial..." title="Escribe para filtrar computadoras" />
+            </div>
+
+            <div class="filter-box">
+              <label for="computersStatusFilter">Estado</label>
+              <select id="computersStatusFilter">
+                <option value="todos">Todos</option>
+                <option value="Activo">Activo</option>
+                <option value="Asignado">Asignado</option>
+                <option value="Disponible">Disponible</option>
+                <option value="En mantenimiento">En mantenimiento</option>
+                <option value="Dado de baja">Dado de baja</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-panel">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No.</th>
+                    <th>Ubicación</th>
+                    <th>Descripción</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>RAM</th>
+                    <th>Gráfica</th>
+                    <th>Número de serie</th>
+                    <th>S.O</th>
+                    <th>Disco</th>
+                    <th>Estado</th>
+                    <th>Foto</th>
+                    <th>Última modificación</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="computersTableBody"></tbody>
               </table>
             </div>
           </div>

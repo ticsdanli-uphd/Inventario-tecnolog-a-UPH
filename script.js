@@ -169,6 +169,10 @@ const elements = {
   statusFilter: document.getElementById('statusFilter'),
   inventoryTableBody: document.getElementById('inventoryTableBody'),
   statsGrid: document.getElementById('statsGrid'),
+  computersSearch: document.getElementById('computersSearch'),
+  computersStatusFilter: document.getElementById('computersStatusFilter'),
+  computersTableBody: document.getElementById('computersTableBody'),
+  computersStatsGrid: document.getElementById('computersStatsGrid'),
   areasGrid: document.getElementById('areasGrid'),
   usersTableBody: document.getElementById('usersTableBody'),
   reportSummary: document.getElementById('reportSummary'),
@@ -375,6 +379,102 @@ function renderInventory() {
   `).join('');
 }
 
+function renderComputers() {
+  if (!elements.computersTableBody || !elements.computersSearch || !elements.computersStatusFilter) return;
+
+  const searchText = elements.computersSearch.value.trim().toLowerCase();
+  const pickedStatus = elements.computersStatusFilter.value;
+
+  // Filtrar solo computadoras: Equipo de cómputo y Servidor de trabajo
+  let computers = state.inventory.filter((item) => {
+    const isComputer = item.clasificacion && (
+      item.clasificacion.includes('Equipo de cómputo') || 
+      item.clasificacion.includes('Servidor de trabajo')
+    );
+    
+    if (!isComputer) return false;
+
+    const hayTexto = !searchText || [
+      item.ubicacion,
+      item.descripcion,
+      item.marca,
+      item.modelo,
+      item.serial
+    ].join(' ').toLowerCase().includes(searchText);
+
+    const hayEstado = pickedStatus === 'todos' || item.estado === pickedStatus;
+    return hayTexto && hayEstado;
+  });
+
+  if (!computers.length) {
+    elements.computersTableBody.innerHTML = '<tr><td colspan="14" class="empty-state">No se encontraron computadoras con esos filtros.</td></tr>';
+    return;
+  }
+
+  elements.computersTableBody.innerHTML = computers.map((item) => `
+    <tr>
+      <td>${item.no}</td>
+      <td>${item.ubicacion}</td>
+      <td>${item.descripcion}</td>
+      <td>${item.marca || '-'}</td>
+      <td>${item.modelo || '-'}</td>
+      <td>${item.ram || '-'}</td>
+      <td>${item.tarjetaGrafica || '-'}</td>
+      <td>${item.serial || '-'}</td>
+      <td>${item.sistemaOperativo || '-'}</td>
+      <td>${item.disco || '-'}</td>
+      <td><span class="badge ${statusClass(item.estado)}">${item.estado}</span></td>
+      <td>
+        <div class="photo-box">
+          <img src="${item.foto || 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=500&q=80'}" alt="${item.descripcion}" />
+        </div>
+      </td>
+      <td>${formatDate(item.ultimaModificacion)}</td>
+      <td>
+        <div class="action-group">
+          <button class="action-btn edit" data-action="edit" data-id="${item.id}">Editar</button>
+          <button class="action-btn status" data-action="status" data-id="${item.id}">Estado</button>
+          <button class="action-btn delete" data-action="delete" data-id="${item.id}">Eliminar</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderComputersStats() {
+  if (!elements.computersStatsGrid) return;
+
+  // Filtrar solo computadoras
+  const computers = state.inventory.filter((item) => 
+    item.clasificacion && (
+      item.clasificacion.includes('Equipo de cómputo') || 
+      item.clasificacion.includes('Servidor de trabajo')
+    )
+  );
+
+  const total = computers.length;
+  const activos = computers.filter((item) => item.estado === 'Activo').length;
+  const asignados = computers.filter((item) => item.estado === 'Asignado').length;
+  const mantenimiento = computers.filter((item) => item.estado === 'En mantenimiento').length;
+
+  const stats = [
+    { label: 'Total', value: total, color: '#5b5ce6' },
+    { label: 'Activos', value: activos, color: '#22c55e' },
+    { label: 'Asignados', value: asignados, color: '#8b5cf6' },
+    { label: 'Mantenimiento', value: mantenimiento, color: '#f59e0b' }
+  ];
+
+  elements.computersStatsGrid.innerHTML = stats.map((stat) => `
+    <article class="stat-card">
+      <span class="label">${stat.label}</span>
+      <div class="value">
+        <span>${stat.value}</span>
+        <span class="dot" style="background:${stat.color};"></span>
+      </div>
+    </article>
+  `).join('');
+}
+
 function renderAreas() {
   if (!elements.areasGrid) return;
 
@@ -452,6 +552,7 @@ function toggleSection(section) {
 
   const sections = {
     inventory: document.getElementById('inventorySection'),
+    computers: document.getElementById('computersSection'),
     areas: document.getElementById('areasSection'),
     users: document.getElementById('usersSection'),
     reports: document.getElementById('reportsSection')
@@ -461,6 +562,12 @@ function toggleSection(section) {
     el.classList.toggle('hidden-section', key !== section);
     el.classList.toggle('active-section', key === section);
   });
+
+  // Renderizar datos según la sección activa
+  if (section === 'computers') {
+    renderComputersStats();
+    renderComputers();
+  }
 }
 
 function openAssetModal(item = null) {
@@ -782,6 +889,8 @@ function bindEvents() {
     if (elements.newAssetBtn) elements.newAssetBtn.addEventListener('click', () => openAssetModal());
     if (elements.inventorySearch) elements.inventorySearch.addEventListener('input', renderInventory);
     if (elements.statusFilter) elements.statusFilter.addEventListener('change', renderInventory);
+    if (elements.computersSearch) elements.computersSearch.addEventListener('input', renderComputers);
+    if (elements.computersStatusFilter) elements.computersStatusFilter.addEventListener('change', renderComputers);
     if (elements.assetForm) elements.assetForm.addEventListener('submit', handleAssetSubmit);
     if (document.getElementById('closeAssetModal')) document.getElementById('closeAssetModal').addEventListener('click', closeAssetModal);
     if (document.getElementById('cancelAssetBtn')) document.getElementById('cancelAssetBtn').addEventListener('click', closeAssetModal);
