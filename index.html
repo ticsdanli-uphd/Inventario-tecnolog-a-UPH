@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UPH | Login</title>
+    <meta name="description" content="Login del sistema de inventario tecnológico de la Universidad Politécnica de Honduras" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="login">
+    <div id="loginScreen" class="login-shell active">
+      <div class="login-card">
+        <div class="login-brand">
+          <div class="brand-mark">UPH</div>
+          <div>
+            <p class="eyebrow">Universidad Politécnica de Honduras</p>
+            <h2>Inventario tecnológico</h2>
+          </div>
+        </div>
+
+        <form id="loginForm" class="login-form">
+          <label>
+            <span>Usuario</span>
+            <input type="text" id="username" placeholder="admin" required />
+          </label>
+
+          <label>
+            <span>Contraseña</span>
+            <input type="password" id="password" placeholder="••••••••" required />
+          </label>
+
+          <button type="submit" class="primary-btn">Ingresar</button>
+          <p class="login-helper">Usuarios demo: admin / admin123 · operador / operador123</p>
+          <p id="loginError" class="login-error" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

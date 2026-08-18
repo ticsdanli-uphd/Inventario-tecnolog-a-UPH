@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UPH | Inventario dashboard</title>
+    <meta name="description" content="Dashboard del inventario tecnológico de la Universidad Politécnica de Honduras" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="dashboard">
+    <div id="appScreen" class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-mark small">UPH</div>
+          <div>
+            <p class="eyebrow dark">Gestión</p>
+            <h3>Inventario</h3>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-btn active" data-section="inventory">Inventario</button>
+          <button class="nav-btn" data-section="areas">Áreas</button>
+          <button class="nav-btn" data-section="users">Usuarios</button>
+          <button class="nav-btn" data-section="reports">Reportes</button>
+        </nav>
+
+        <div class="user-card">
+          <p class="label">Usuario activo</p>
+          <strong id="sessionUser">-</strong>
+          <span id="sessionRole">-</span>
+        </div>
+
+        <button id="logoutBtn" class="logout-btn">Cerrar sesión</button>
+      </aside>
+
+      <main class="content">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow dark">Panel de control</p>
+            <h1>Gestión tecnológica UPH</h1>
+          </div>
+          <button id="newAssetBtn" class="primary-btn">Nuevo activo</button>
+        </header>
+
+        <section id="inventorySection" class="section-panel active-section">
+          <div class="stats-grid" id="statsGrid"></div>
+
+          <div class="toolbar">
+            <div class="search-box">
+              <span>🔎</span>
+              <input id="inventorySearch" type="search" placeholder="Buscar activo, código, serial, área..." />
+            </div>
+
+            <div class="filter-box">
+              <label for="statusFilter">Estado</label>
+              <select id="statusFilter">
+                <option value="todos">Todos</option>
+                <option value="Activo">Activo</option>
+                <option value="Asignado">Asignado</option>
+                <option value="Disponible">Disponible</option>
+                <option value="En mantenimiento">En mantenimiento</option>
+                <option value="Dado de baja">Dado de baja</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-panel">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No.</th>
+                    <th>Ubicación</th>
+                    <th>Descripción</th>
+                    <th>Clasificación</th>
+                    <th>Código</th>
+                    <th>Estado</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>RAM</th>
+                    <th>Gráfica</th>
+                    <th>Número de serie</th>
+                    <th>S.O</th>
+                    <th>Disco</th>
+                    <th>Foto</th>
+                    <th>Última modificación</th>
+                    <th>Fecha recibida</th>
+                    <th>Acta</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="inventoryTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="areasSection" class="section-panel hidden-section">
+          <div class="panel-header">
+            <h2>Áreas y asignaciones</h2>
+            <button class="secondary-btn" id="newAreaBtn">+ Nueva área</button>
+          </div>
+          <div id="areasGrid" class="areas-grid"></div>
+        </section>
+
+        <section id="usersSection" class="section-panel hidden-section">
+          <div class="panel-header">
+            <h2>Gestión de usuarios</h2>
+            <button class="secondary-btn" id="newUserBtn">+ Usuario</button>
+          </div>
+          <div id="usersTableWrap" class="table-panel small-table">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Usuario</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="reportsSection" class="section-panel hidden-section">
+          <div class="reports-grid">
+            <article class="report-card">
+              <h3>Resumen</h3>
+              <ul id="reportSummary"></ul>
+            </article>
+            <article class="report-card">
+              <h3>Áreas con mayor carga</h3>
+              <ul id="reportAreas"></ul>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="assetModal" class="modal hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 id="assetModalTitle">Registrar activo</h3>
+          <button id="closeAssetModal" class="icon-btn" aria-label="Cerrar">✕</button>
+        </div>
+
+        <form id="assetForm" class="form-grid">
+          <input type="hidden" id="assetId" />
+
+          <label><span>Ubicación</span><input id="assetUbicacion" required /></label>
+          <label><span>Descripción</span><input id="assetDescripcion" required /></label>
+          <label><span>Clasificación</span><input id="assetClasificacion" required /></label>
+          <label><span>Código del activo</span><input id="assetCodigo" required /></label>
+          <label><span>Estado</span>
+            <select id="assetEstado">
+              <option>Activo</option>
+              <option>Asignado</option>
+              <option>Disponible</option>
+              <option>En mantenimiento</option>
+              <option>Dado de baja</option>
+            </select>
+          </label>
+          <label><span>Fabricante/Marca</span><input id="assetMarca" /></label>
+          <label><span>Modelo</span><input id="assetModelo" /></label>
+          <label><span>RAM</span><input id="assetRam" /></label>
+          <label><span>Tarjeta gráfica</span><input id="assetTarjeta" /></label>
+          <label><span>Número de serie</span><input id="assetSerial" /></label>
+          <label><span>S.O</span><input id="assetSO" /></label>
+          <label><span>Disco duro</span><input id="assetDisco" /></label>
+          <input type="hidden" id="assetFotoExisting" />
+          <input type="hidden" id="assetActaExisting" />
+          <label><span>Foto real del activo</span><input id="assetFotoFile" type="file" accept="image/*" /></label>
+          <label><span>Fecha recibida</span><input id="assetFechaRecibida" type="date" /></label>
+          <label><span>Acta de entrega</span><input id="assetActaFile" type="file" accept="image/*,.pdf" /></label>
+
+          <div class="form-actions">
+            <button type="button" class="ghost-btn" id="cancelAssetBtn">Cancelar</button>
+            <button type="submit" class="primary-btn">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="areaModal" class="modal hidden">
+      <div class="modal-card small-card">
+        <div class="modal-header">
+          <h3 id="areaModalTitle">Agregar área</h3>
+          <button id="closeAreaModal" class="icon-btn" aria-label="Cerrar">✕</button>
+        </div>
+
+        <form id="areaForm" class="stack-form">
+          <input type="hidden" id="areaId" />
+          <label><span>Nombre del área</span><input id="areaName" required /></label>
+          <label><span>Tipo</span><input id="areaType" placeholder="Laboratorio, oficina, aula" /></label>
+          <label><span>Estado</span>
+            <select id="areaEstado">
+              <option value="Disponible">Disponible</option>
+              <option value="Asignada">Asignada</option>
+              <option value="En mantenimiento">En mantenimiento</option>
+            </select>
+          </label>
+          <div class="form-actions">
+            <button type="button" class="ghost-btn" id="cancelAreaBtn">Cancelar</button>
+            <button type="submit" class="primary-btn">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="userModal" class="modal hidden">
+      <div class="modal-card small-card">
+        <div class="modal-header">
+          <h3 id="userModalTitle">Agregar usuario</h3>
+          <button id="closeUserModal" class="icon-btn" aria-label="Cerrar">✕</button>
+        </div>
+
+        <form id="userForm" class="stack-form">
+          <input type="hidden" id="userId" />
+          <label><span>Nombre</span><input id="userName" required /></label>
+          <label><span>Usuario</span><input id="userUsername" required /></label>
+          <label><span>Contraseña</span><input id="userPassword" type="password" required /></label>
+          <label><span>Rol</span>
+            <select id="userRole">
+              <option value="admin">Administrador</option>
+              <option value="operador">Operador</option>
+              <option value="soporte">Soporte</option>
+            </select>
+          </label>
+          <label><span>Estado</span>
+            <select id="userStatus">
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </label>
+          <div class="form-actions">
+            <button type="button" class="ghost-btn" id="cancelUserBtn">Cancelar</button>
+            <button type="submit" class="primary-btn">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
